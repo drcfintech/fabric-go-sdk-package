@@ -5,15 +5,15 @@ type Chain struct {
 }
 
 type Block struct {
-	BlockHash         string
-	Timestamp         int64
-	Height            int64 `json:",string"`
-	TransactionNumber int
-	PreHash           string
-	Transaction       []*ChainTransaction `json:"Transaction"`
+	BlockHash         string              `json:"hash"`
+	Timestamp         int64               `json:"timestamp"`
+	Height            int64               `json:"height"`
+	TransactionNumber int                 `json:"transactionNumber"`
+	PreHash           string              `json:"preHash"`
+	Transaction       []*ChainTransaction `json:"transaction"`
+Time              string              `json:"time"`
 }
-
-type ChainTransaction struct {
+type ChainTransactionup struct {
 	Height                             int64
 	Timestamp                          int64
 	TxID, Chaincode, Method, ChannelId string
@@ -22,6 +22,17 @@ type ChainTransaction struct {
 	Hash                               string
 	Time                               string
 	PreHash                            string
+}
+type ChainTransaction struct {
+	Height                             int64    `json:"height"`
+	Timestamp                          int64    `json:"timestamp"`
+	Chaincode, Method, ChannelId string   `json:"-"`
+	CreatedFlag                        bool     `json:"createdFlag"`
+	TxArgs                             [][]byte `json:"-"`
+	Hash                               string   `json:"hash"`
+	Time                               string   `json:"time"`
+	PreHash                            string   `json:"preHash"`
+	TxID                            string   `json:"txID"`
 }
 type ChainTransaction1 struct {
 	Height                             int64       `json:"height"`
@@ -45,9 +56,23 @@ type ChainTransactionQuery struct {
 	Bst                    BaseSurveyT            `json:"BaseSurvey"`
 	Brt                    BaseReportT            `json:"BaseReport"`
 	Pat                    ProAttachmentlistT     `json:"ProAttachment"`
-	Suf                    interface{}     `json:"data"`
+	Suf                    interface{}            `json:"data"`
 }
 
+type ChainTransactionConfig struct {
+	Height      int64    `json:"height"`
+	Timestamp   int64    `json:"timestamp"`
+	TxID        string   `json:"txid"`
+	CreatedFlag bool     `json:"createdFlag"`
+	TxArgs      [][]byte `json:"-"`
+	Hash        string   `json:"hash"`
+	Time        string   `json:"time"`
+	PreHash     string   `json:"preHash"`
+	Chaincode   string   `json:"chaincode"`
+	Method      string   `json:"method"`
+Timestampes   interface{}   `json:"timeshs"`
+	ChannelId   string   `json:"channelId"`
+}
 const (
 	TxStatus_Success = 0
 	TxStatus_Fail    = 1
@@ -133,7 +158,7 @@ type BaseAsset struct {
 	ParentID   string `json:"parentID"`
 }
 
-type ChainTransactionConfig struct {
+type ChainTransactionConfigbf struct {
 	Height                             int64    `json:"height"`
 	Timestamp                          int64    `json:"timestamp"`
 	TxID, Chaincode, Method, ChannelId string   `json:"txid"`
@@ -389,4 +414,3 @@ type BaseFetter struct {
 	FetBz    string `json:"fetBz`
 	FetState string `json:"fetState`
 }
-

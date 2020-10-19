@@ -82,6 +82,78 @@ func EnvelopeToTrasaction(env *common.Envelope) (*ChainTransaction, error) {
 	return ta, nil
 }
 
+func EnvelopeToTrasactionup(env *common.Envelope) (*ChainTransactionup, error) {
+	ta := &ChainTransactionup{}
+	//	//====Transaction====== []
+	// Height                  int64 `json:",string"`
+	// TxID, Chaincode, Method string
+	// CreatedFlag             bool
+	// TxArgs                  [][]byte `json:"-"`
+
+	var err error
+	if env == nil {
+		return ta, errors.New("common.Envelope is nil")
+	}
+	payl := &common.Payload{}
+	err = proto.Unmarshal(env.Payload, payl)
+	if err != nil {
+		return nil, err
+	}
+	tx := &pb.Transaction{}
+	err = proto.Unmarshal(payl.Data, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	taa := &pb.TransactionAction{}
+	taa = tx.Actions[0]
+
+	cap := &pb.ChaincodeActionPayload{}
+	err = proto.Unmarshal(taa.Payload, cap)
+	if err != nil {
+		return nil, err
+	}
+
+	pPayl := &pb.ChaincodeProposalPayload{}
+	proto.Unmarshal(cap.ChaincodeProposalPayload, pPayl)
+
+	prop := &pb.Proposal{}
+	pay, err := proto.Marshal(pPayl)
+	if err != nil {
+		return nil, err
+	}
+
+	prop.Payload = pay
+	h, err := proto.Marshal(payl.Header)
+	if err != nil {
+		return nil, err
+	}
+	prop.Header = h
+
+	invocation := &pb.ChaincodeInvocationSpec{}
+	err = proto.Unmarshal(pPayl.Input, invocation)
+	if err != nil {
+		return nil, err
+	}
+
+	spec := invocation.ChaincodeSpec
+
+	// hdr := &common.Header{}
+	// hdr = payl.Header
+	channelHeader := &common.ChannelHeader{}
+	proto.Unmarshal(payl.Header.ChannelHeader, channelHeader)
+
+	ta.Timestamp = channelHeader.Timestamp.Seconds
+	ta.ChannelId = channelHeader.ChannelId
+	ta.TxID = channelHeader.TxId
+	if len(spec.GetInput().GetArgs()) != 0 {
+		ta.TxArgs = spec.GetInput().GetArgs()[1:]
+		ta.Method = string(spec.GetInput().GetArgs()[0])
+	}
+	ta.Chaincode = spec.GetChaincodeId().GetName()
+	ta.CreatedFlag = channelHeader.GetType() == int32(common.HeaderType_ENDORSER_TRANSACTION)
+	return ta, nil
+}
 func EnvelopeToTrasactionQuery(env *common.Envelope) (*ChainTransactionQuery, error) {
 	ta := &ChainTransactionQuery{}
 	//	//====Transaction====== []
